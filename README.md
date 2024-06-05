@@ -1,6 +1,9 @@
 # Text-to-Image Rectified Flow as Plug-and-Play Priors
-### [Arxiv Paper](https://arxiv.org/abs/2312.04820)
+<div align="center">
 
+<a href='https://arxiv.org'><img src='https://img.shields.io/badge/arXiv-111.111-b31b1b.svg'></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</div>
 
 
 <p style='text-align: justify;'> 

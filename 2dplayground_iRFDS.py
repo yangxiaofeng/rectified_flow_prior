@@ -19,6 +19,7 @@ def seed_everything(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
 
+# change this line for new prompt
 prompt_new = "a rock in a river"
 config = {
     "max_iters": 1000,
@@ -28,6 +29,7 @@ config = {
     "prompt_processor_type": "stable-diffusion-prompt-processor",
     "prompt_processor": {
         "pretrained_model_name_or_path": "XCLIU/2_rectified_flow_from_sd_1_5",
+        # change this line for previous prompt
         "prompt": "a boat in a river",
         "spawn": False,
     },
@@ -60,9 +62,10 @@ config = {
 from pipeline_rf import RectifiedFlowPipeline
 
 pipe_rf = RectifiedFlowPipeline.from_pretrained("XCLIU/2_rectified_flow_from_sd_1_5", torch_dtype=torch.float32)
-pipe_rf.to("cuda")  ### if GPU is not available, comment this line
+pipe_rf.to("cuda")
 prompt = config['prompt_processor']['prompt']
 
+# path of the original image
 image = Image.open("data_assets/a_boat_in_a_river.png")
 
 
@@ -77,7 +80,6 @@ rgb_BCHW = image_tensor
 rgb_BCHW_512 = F.interpolate(
     rgb_BCHW, (512, 512), mode="bilinear", align_corners=False
 )
-# encode image into latents with vae
 
 seed_everything(config["seed"])
 
@@ -128,8 +130,6 @@ mvp_mtx = torch.zeros([batch_size, 4, 4], device=guidance.device)
 n_accumulation_steps = config["n_accumulation_steps"]
 
 for step in tqdm(range(num_steps * n_accumulation_steps + 1)):
-    # random select batch_size images from target with replacement
-
     loss_dict = guidance(
         noise_to_optimize=target,
         gt_image = target_image,
