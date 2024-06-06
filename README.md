@@ -1,7 +1,7 @@
 # Text-to-Image Rectified Flow as Plug-and-Play Priors
 <div align="center">
 
-<a href='https://arxiv.org'><img src='https://img.shields.io/badge/arXiv-111.111-b31b1b.svg'></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href='https://arxiv.org/abs/2406.03293'><img src='https://img.shields.io/badge/arXiv-2406.03293-b31b1b.svg'></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 </div>
 
@@ -60,8 +60,8 @@ RFDS is built on the following open-source projects:
 ```
 @article{yang2024rfds,
   title={Text-to-Image Rectified Flow as Plug-and-Play Priors},
-  author={Xiaofeng Yang and Cheng Chen, Xulei Yang, Fayao Liu and Guosheng Lin},
-  journal={arXiv},
+  author={Xiaofeng Yang and Cheng Chen and Xulei Yang and Fayao Liu and Guosheng Lin},
+  journal={arXiv-2406.03293},
   year={2024}
 }
 ```
