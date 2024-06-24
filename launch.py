@@ -122,9 +122,9 @@ def main(args, extras) -> None:
                 dirpath=os.path.join(cfg.trial_dir, "ckpts"), **cfg.checkpoint
             ),
             LearningRateMonitor(logging_interval="step"),
-            CodeSnapshotCallback(
-                os.path.join(cfg.trial_dir, "code"), use_version=False
-            ),
+            # CodeSnapshotCallback(
+            #    os.path.join(cfg.trial_dir, "code"), use_version=False
+            # ),
             ConfigSnapshotCallback(
                 args.config,
                 cfg,
