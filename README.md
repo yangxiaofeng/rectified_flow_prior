@@ -57,6 +57,12 @@ python launch.py --config configs/rfds_sd3.yaml --train --gpu 0 system.prompt_pr
 python launch.py --config configs/rfds-rev_sd3.yaml --train --gpu 0 system.prompt_processor.prompt="A DSLR photo of a hamburger" 
 ```
 
+### Text-to-3D with RFDS-Rev, reduced memory usage (SD3) (able to run on 46g GPUs)
+```
+python launch.py --config configs/rfds-rev_sd3_low_memory.yaml --train --gpu 0 system.prompt_processor.prompt="A DSLR photo of a hamburger" 
+```
+
+
 ## Results
 
 ### Optimization in 2D space (SD3)
