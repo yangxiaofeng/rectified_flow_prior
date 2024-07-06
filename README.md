@@ -9,14 +9,15 @@
 Large-scale diffusion models have achieved remarkable performance in generative tasks. Beyond their initial training applications, these models have proven their ability to function as versatile plug-and-play priors. For instance, 2D diffusion models can serve as loss functions to optimize 3D implicit models. Rectified flow, a novel class of generative models, enforces a linear progression from the source to the target distribution and has demonstrated superior performance across various domains. Compared to diffusion-based methods, rectified flow approaches surpass in terms of generation quality and efficiency, requiring fewer inference steps. In this work, we present theoretical and experimental evidence demonstrating that rectified flow based methods offer similar functionalities to diffusion models — they can also serve as effective priors. Besides the generative capabilities of diffusion priors, motivated by the unique time-symmetry properties of rectified flow models, a variant of our method can additionally perform image inversion. Experimentally, our rectified flow-based priors outperform their diffusion counterparts — the SDS and VSD losses — in text-to-3D generation. Our method also displays competitive performance in image inversion and editing.</p>
 
 ## Updates
-- 05/06/2024: Code release.
-- 21/06/2024: Add support for Stable Diffusion 3. Results are greatly improved!
+- 2024/06/05: Code release.
+- 2024/06/21: Add support for Stable Diffusion 3 (June, Medium version). 
 
 
 ## ToDo
 
 - [x] Code release. The base text-to-image model is based on **[InstaFlow](https://github.com/gnobitab/InstaFlow)**.
 - [x] Add support for Stable Diffusion 3 after the model is released.
+- [ ] Stability AI will release "a much improved version" of SD3 soon (refer to [here](https://twitter.com/StabilityAI/status/1809274936847933715)). We'll add support for the new version ASAP.
 
 
 
