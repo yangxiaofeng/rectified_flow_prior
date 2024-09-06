@@ -406,7 +406,7 @@ class RectifiedFlowGuidance(BaseModule):
         target = (grad).detach()
         loss_rfds = weights * F.mse_loss(noise - latents, target, reduction="mean") / batch_size
         return {
-            "loss_rfds": loss_rfds,
+            "loss_rfds": loss_rfds.mean(),
             "grad_norm": grad.norm(),
             "min_step": self.min_step,
             "max_step": self.max_step,
