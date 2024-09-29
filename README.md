@@ -10,7 +10,8 @@ Large-scale diffusion models have achieved remarkable performance in generative 
 
 ## Updates
 - 2024/06/05: Code release.
-- 2024/06/21: Add support for Stable Diffusion 3 (June, Medium version). 
+- 2024/06/21: Add support for Stable Diffusion 3 (June, Medium version).
+- 2024/10/01: We extended the paper with the Stochastic Interpolants framework. In addition to the rectified flow models, the new theory can also be applied to diffusion models expressed in PF-ODE. An updated version with be uploaded to arxiv shortly after ECCV. We also optimized the SD3 code to help understanding. 
 
 
 ## ToDo
