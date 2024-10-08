@@ -334,7 +334,7 @@ class RectifiedFlowGuidance(BaseModule):
             sigmas = self.get_sigmas(timesteps, n_dim=latents.ndim, dtype=latents.dtype)
             latents_noisy = sigmas * noise + (1.0 - sigmas) * latents            # pred noise
             latent_model_input = torch.cat([latents_noisy] * 2, dim=0)
-            noise_pred = self.forward_transformer(
+            velocity = self.forward_transformer(
                 self.transformer,
                 latent_model_input,
                 torch.cat([timesteps] * 2),
@@ -342,13 +342,13 @@ class RectifiedFlowGuidance(BaseModule):
                 pooled_prompt_embeds,
                 )
         (
-            noise_pred_pretrain_text,
-            noise_pred_pretrain_null,
-        ) = noise_pred.chunk(2)
+            velocity_text,
+            velocity_null,
+        ) = velocity.chunk(2)
         u = torch.normal(mean=0, std=1, size=(B,), device=self.device)
         weighting = torch.nn.functional.sigmoid(u)
         # NOTE: guidance scale definition here is aligned with diffusers, but different from other guidance
-        model_pred = noise_pred_pretrain_null + self.cfg.guidance_scale * (noise_pred_pretrain_text - noise_pred_pretrain_null)
+        model_pred = velocity_null + self.cfg.guidance_scale * (velocity_text - velocity_null)
         return model_pred, noise, weighting
 
 

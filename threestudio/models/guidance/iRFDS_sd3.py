@@ -411,7 +411,7 @@ class RectifiedFlowGuidance(BaseModule):
             # Add noise according to flow matching.
             sigmas = self.get_sigmas(timesteps, n_dim=latents.ndim, dtype=latents.dtype)
             latents_noisy = sigmas * noise + (1.0 - sigmas) * latents
-            noise_pred = self.forward_transformer(
+            velocity = self.forward_transformer(
                 self.transformer,
                 latents_noisy,
                 timesteps,
@@ -423,7 +423,7 @@ class RectifiedFlowGuidance(BaseModule):
         weighting = torch.nn.functional.sigmoid(u)
         # NOTE: guidance scale definition here is aligned with diffusers, but different from other guidance
 
-        return noise_pred, noise, weighting
+        return velocity, noise, weighting
 
 
     def get_latents(

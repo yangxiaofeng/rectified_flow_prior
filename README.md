@@ -11,13 +11,14 @@ Large-scale diffusion models have achieved remarkable performance in generative 
 ## Updates
 - 2024/06/05: Code release.
 - 2024/06/21: Add support for Stable Diffusion 3 (June, Medium version).
-- 2024/10/01: We extended the paper with the Stochastic Interpolants framework. In addition to the rectified flow models, the new theory can also be applied to diffusion models expressed in PF-ODE. An updated version with be uploaded to arxiv shortly after ECCV. We also optimized the SD3 code to help understanding. 
+- 2024/10/08: We extend the paper with the Stochastic Interpolants framework. In addition to the rectified flow models, the new theory can also be applied to other flow-matching based methods and diffusion models expressed in PF-ODE. An updated version has been uploaded to arxiv. We also optimized the codes to help understanding.
 
 
 ## ToDo
 
 - [x] Code release. The base text-to-image model is based on **[InstaFlow](https://github.com/gnobitab/InstaFlow)**.
 - [x] Add support for Stable Diffusion 3 after the model is released.
+- [ ] Support Flux, the SOTA text-to-image model
 - [ ] Stability AI will release "a much improved version" of SD3 soon (refer to [here](https://twitter.com/StabilityAI/status/1809274936847933715)). We'll add support for the new version ASAP.
 
 

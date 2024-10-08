@@ -382,7 +382,7 @@ class RectifiedFlowGuidance(BaseModule):
             noise = torch.randn_like(latents)
             latents_noisy = t.unsqueeze(1).unsqueeze(1).unsqueeze(1) / self.num_train_timesteps * latents + (1-t.unsqueeze(1).unsqueeze(1).unsqueeze(1)/self.num_train_timesteps) * noise
 
-            noise_pred_pretrain_noise = self.forward_unet(
+            velocity = self.forward_unet(
                 self.unet,
                 latents_noisy,
                 t,
@@ -390,27 +390,26 @@ class RectifiedFlowGuidance(BaseModule):
                 )
 
             stepsize = 1
-            noise = noise + stepsize * (latents - noise - noise_pred_pretrain_noise)
+            noise = noise + stepsize * (latents - noise - velocity)
             #  noise = noise - noise_pred_pretrain_noise
             latents_noisy = t.unsqueeze(1).unsqueeze(1).unsqueeze(1) / self.num_train_timesteps * latents + (1-t.unsqueeze(1).unsqueeze(1).unsqueeze(1)/self.num_train_timesteps) * noise
             # pred noise
             latent_model_input = torch.cat([latents_noisy] * 2, dim=0)
 
-            noise_pred_pretrain = self.forward_unet(
+            velocity = self.forward_unet(
                 self.unet,
                 latent_model_input,
                 torch.cat([t] * 2),
                 encoder_hidden_states=text_embeddings_vd
                 )
         (
-            noise_pred_pretrain_text,
-            noise_pred_pretrain_null,
-        ) = noise_pred_pretrain.chunk(2)
+            velocity_text,
+            velocity_null,
+        ) = velocity.chunk(2)
 
         # NOTE: guidance scale definition here is aligned with diffusers, but different from other guidance
-        noise_pred_pretrain = noise_pred_pretrain_null + self.cfg.guidance_scale * (noise_pred_pretrain_text - noise_pred_pretrain_null)
-        grad = noise_pred_pretrain
-        return grad,noise
+        velocity_pretrain = velocity_null + self.cfg.guidance_scale * (velocity_text - velocity_null)
+        return velocity_pretrain,noise
 
 
     def get_latents(

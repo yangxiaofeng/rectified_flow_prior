@@ -360,14 +360,14 @@ class RectifiedFlowGuidance(BaseModule):
             )
 
             latents_noisy = t.unsqueeze(1).unsqueeze(1).unsqueeze(1) / self.num_train_timesteps * latents + (1-t.unsqueeze(1).unsqueeze(1).unsqueeze(1)/self.num_train_timesteps) * noise
-            noise_pred_pretrain = self.forward_unet(
+            velocity_pretrain = self.forward_unet(
                 self.unet,
                 latents_noisy,
                 t,
                 encoder_hidden_states=text_embeddings[0:B]
                 )
 
-        return noise_pred_pretrain
+        return velocity_pretrain
 
 
     def get_latents(

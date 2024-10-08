@@ -324,30 +324,30 @@ class RectifiedFlowGuidance(BaseModule):
         ) = text_embeddings_vd[1].chunk(2)
         prompt_embeds = torch.cat([text_embeddings, uncond_text_embeddings])
         pooled_prompt_embeds = torch.cat([text_embeddings_pooled, uncond_text_embeddings_pooled])
-        noise = torch.randn_like(latents)
-
         with torch.no_grad():
+            noise = torch.randn_like(latents)
             indices = torch.randint(self.min_step, self.max_step + 1, (B,))
             timesteps = self.noise_scheduler_copy.timesteps[indices].to(device=self.device)
 
             # Add noise according to flow matching.
             sigmas = self.get_sigmas(timesteps, n_dim=latents.ndim, dtype=latents.dtype)
+            # sigmas = timesteps/1000
             latents_noisy = sigmas * noise + (1.0 - sigmas) * latents            # pred noise
             # iRFDS
-            noise_pred = self.forward_transformer(
+            velocity = self.forward_transformer(
                 self.transformer,
                 latents_noisy,
                 timesteps,
                 text_embeddings,
                 text_embeddings_pooled,
                 )
-            # https://github.com/huggingface/diffusers/blob/614d0c64e96b37740e14bb5c2eca8f8a2ecdf23e/examples/dreambooth/train_dreambooth_lora_sd3.py#L1481
-            new_latent = noise_pred * (-sigmas) + latents_noisy # the new latents
-            noise = noise_pred + new_latent
-
-            latents_noisy = sigmas * noise + (1.0 - sigmas) * latents            # pred noise
+            stepsize = 1 - sigmas
+            noise = noise + stepsize * (velocity + latents - noise)
+            ###############################################################
+            # RFDS
+            latents_noisy = sigmas * noise + (1.0 - sigmas) * latents
             latent_model_input = torch.cat([latents_noisy] * 2, dim=0)
-            noise_pred = self.forward_transformer(
+            velocity = self.forward_transformer(
                 self.transformer,
                 latent_model_input,
                 torch.cat([timesteps] * 2),
@@ -355,24 +355,26 @@ class RectifiedFlowGuidance(BaseModule):
                 pooled_prompt_embeds,
                 )
         (
-            noise_pred_pretrain_text,
-            noise_pred_pretrain_null,
-        ) = noise_pred.chunk(2)
+            velocity_text,
+            velocity_null,
+        ) = velocity.chunk(2)
         u = torch.normal(mean=0, std=1, size=(B,), device=self.device)
         weighting = torch.nn.functional.sigmoid(u)
         # NOTE: guidance scale definition here is aligned with diffusers, but different from other guidance
-        model_pred = noise_pred_pretrain_null + self.cfg.guidance_scale * (noise_pred_pretrain_text - noise_pred_pretrain_null)
+        model_pred = velocity_null + self.cfg.guidance_scale * (velocity_text - velocity_null)
         # Follow: Section 5 of https://arxiv.org/abs/2206.00364.
         # Preconditioning of the model outputs.
         return model_pred, noise, weighting
 
 
     def get_latents(
-        self, rgb_BCHW: Float[Tensor, "B C H W"], rgb_as_latents=False
+        self, rgb_BCHW: Float[Tensor, "B C H W"], rgb_as_latents=False,
+        latent_height: int = 64,
+        latent_width: int = 64,
     ) -> Float[Tensor, "B 4 64 64"]:
         if rgb_as_latents:
             latents = F.interpolate(
-                rgb_BCHW, (64, 64), mode="bilinear", align_corners=False
+                rgb_BCHW, (latent_height, latent_width), mode="bilinear", align_corners=False
             )
         else:
             latents = self.encode_images(rgb_BCHW)
@@ -388,11 +390,13 @@ class RectifiedFlowGuidance(BaseModule):
         mvp_mtx: Float[Tensor, "B 4 4"],
         c2w: Float[Tensor, "B 4 4"],
         rgb_as_latents=False,
+        latent_height: int = 64,
+        latent_width: int = 64,
         **kwargs,
     ):
         batch_size = rgb.shape[0]
         rgb_BCHW = rgb.permute(0, 3, 1, 2)
-        latents = self.get_latents(rgb_BCHW, rgb_as_latents=rgb_as_latents)
+        latents = self.get_latents(rgb_BCHW,latent_height=latent_height, latent_width= latent_width,rgb_as_latents=rgb_as_latents)
 
         # view-dependent text embeddings
         text_embeddings_vd = prompt_utils.get_text_embeddings(
