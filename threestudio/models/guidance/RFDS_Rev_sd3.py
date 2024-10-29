@@ -69,7 +69,7 @@ class RectifiedFlowGuidance(BaseModule):
         class SubModules:
             pipe: StableDiffusionPipeline
 
-        pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3-medium-diffusers",
+        pipe = StableDiffusion3Pipeline.from_pretrained(self.cfg.pretrained_model_name_or_path,
                                                         torch_dtype=torch.float16,tokenizer=None,safety_checker=None,feature_extractor= None,requires_safety_checker= False)
 
         pipe = pipe.to(self.device)

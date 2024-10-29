@@ -73,8 +73,8 @@ class StableDiffusionPromptProcessor(PromptProcessor):
 
     @staticmethod
     def spawn_func(pretrained_model_name_or_path, prompts, cache_dir,device):
-        pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3-medium-diffusers",
-                                                        torch_dtype=torch.float16)
+        pipe = StableDiffusion3Pipeline.from_pretrained(pretrained_model_name_or_path,
+                                                        torch_dtype=torch.bfloat16)
         pipe = pipe.to(device)
         with torch.no_grad():
             (
