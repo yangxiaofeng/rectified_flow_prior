@@ -1,4 +1,4 @@
-# [ICLR2025] Text-to-Image Rectified Flow as Plug-and-Play Priors
+# [ICLR 2025] Text-to-Image Rectified Flow as Plug-and-Play Priors
 <div align="left">
 <a href='https://arxiv.org/abs/2406.03293'><img src='https://img.shields.io/badge/arXiv-2406.03293-b31b1b.svg'></a> 
 </div>
