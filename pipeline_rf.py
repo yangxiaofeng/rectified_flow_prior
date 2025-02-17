@@ -525,6 +525,7 @@ class RectifiedFlowPipeline(DiffusionPipeline, TextualInversionLoaderMixin, Lora
         callback_steps: int = 1,
         cross_attention_kwargs: Optional[Dict[str, Any]] = None,
         guidance_rescale: float = 0.0,
+        step_scale: float = 1.0
     ):
         r"""
         The call function to the pipeline for generation.
@@ -635,7 +636,7 @@ class RectifiedFlowPipeline(DiffusionPipeline, TextualInversionLoaderMixin, Lora
             prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
 
         # 4. Prepare timesteps
-        timesteps = [(1. - i/num_inference_steps) * 1000. for i in range(num_inference_steps)]
+        timesteps = [(1. - i/num_inference_steps) * 1000. for i in range(num_inference_steps - int(num_inference_steps*step_scale),num_inference_steps)]
 
         # 5. Prepare latent variables
         num_channels_latents = self.unet.config.in_channels

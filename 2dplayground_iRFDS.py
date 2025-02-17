@@ -20,7 +20,8 @@ def seed_everything(seed):
     torch.cuda.manual_seed(seed)
 
 # change this line for new prompt
-prompt_new = "a rock in a river"
+prompt_new = "a tiger sitting on a table"
+image = Image.open("data_assets/a_cat_sitting_on_a_table.png")
 config = {
     "max_iters": 1000,
     "seed": 1,
@@ -30,7 +31,7 @@ config = {
     "prompt_processor": {
         "pretrained_model_name_or_path": "XCLIU/2_rectified_flow_from_sd_1_5",
         # change this line for previous prompt
-        "prompt": "a boat in a river",
+        "prompt": "a cat sitting on a table",
         "spawn": False,
     },
     "guidance_type": "iRFDS",
@@ -58,7 +59,7 @@ config = {
     },
 }
 
-
+step_scale = 0.9
 from pipeline_rf import RectifiedFlowPipeline
 
 pipe_rf = RectifiedFlowPipeline.from_pretrained("XCLIU/2_rectified_flow_from_sd_1_5", torch_dtype=torch.float32)
@@ -66,7 +67,7 @@ pipe_rf.to("cuda")
 prompt = config['prompt_processor']['prompt']
 
 # path of the original image
-image = Image.open("data_assets/a_boat_in_a_river.png")
+
 
 
 import torchvision.transforms as transforms
@@ -129,6 +130,19 @@ save_interval = config["save_interval"]
 mvp_mtx = torch.zeros([batch_size, 4, 4], device=guidance.device)
 n_accumulation_steps = config["n_accumulation_steps"]
 
+from math import log10, sqrt
+import cv2
+import numpy as np
+def PSNR(original, compressed):
+    mse = np.mean((original - compressed) ** 2)
+    if (mse == 0):  # MSE is zero means no noise is present in the signal .
+        # Therefore PSNR have no importance.
+        return 100
+    max_pixel = 255.0
+    psnr = 20 * log10(max_pixel / sqrt(mse))
+    return psnr
+
+
 for step in tqdm(range(num_steps * n_accumulation_steps + 1)):
     loss_dict = guidance(
         noise_to_optimize=target,
@@ -145,6 +159,8 @@ for step in tqdm(range(num_steps * n_accumulation_steps + 1)):
     loss = (loss_dict["loss_iRFDS"] + loss_dict["loss_regularize"]) / n_accumulation_steps
     loss.backward()
 
+
+    target_mid = target.detach() * step_scale + target_image.permute(0, 3, 1, 2).detach() * (1-step_scale)
     if (step + 1) % n_accumulation_steps == 0:
         actual_step = (step + 1) // n_accumulation_steps
         guidance.update_step(epoch=0, global_step=actual_step)
@@ -154,15 +170,20 @@ for step in tqdm(range(num_steps * n_accumulation_steps + 1)):
 
         if actual_step % save_interval == 0:
             images = pipe_rf(prompt=prompt,
-                             num_inference_steps=15,
-                             latents=target,
+                             num_inference_steps=20,
+                             latents=target_mid,
+                             step_scale=step_scale,
                              guidance_scale=1.5).images
             images[0].save(os.path.join(out_dir, f"{actual_step:05d}_inversion.png"))
 
             images = pipe_rf(prompt=prompt_new,
-                             num_inference_steps=15,
-                             latents=target,
+                             num_inference_steps=20,
+                             latents=target_mid,
+                             step_scale = step_scale,
                              guidance_scale=1.5).images
             images[0].save(os.path.join(out_dir, f"{actual_step:05d}_new.png"))
 
-
+            original = cv2.imread(os.path.join(out_dir, f"original.png"))
+            compressed = cv2.imread(os.path.join(out_dir, f"{actual_step:05d}_inversion.png"), 1)
+            value = PSNR(original, compressed)
+            print(f"PSNR value is {value} dB")
