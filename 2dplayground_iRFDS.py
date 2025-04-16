@@ -134,6 +134,9 @@ from math import log10, sqrt
 import cv2
 import numpy as np
 def PSNR(original, compressed):
+    # Convert images to float64 to prevent wraparound during subtraction
+    original = original.astype(np.float64)
+    compressed = compressed.astype(np.float64)
     mse = np.mean((original - compressed) ** 2)
     if (mse == 0):  # MSE is zero means no noise is present in the signal .
         # Therefore PSNR have no importance.
